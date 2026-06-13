@@ -1,0 +1,20 @@
+# Backend
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/data/results.json
+backend/demo_data/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/src/types/api.ts
+
+# OS
+.DS_Store
+Thumbs.db
+
+.playwright-mcp
+.remember
+.claude
