@@ -1,10 +1,3 @@
-/**
- * ScanForm — path input and options panel.
- *
- * Kept intentionally simple: one required field (path), two optional
- * toggles, and start/cancel buttons that mirror scan status.
- */
-
 import { useState } from "react";
 import { FolderOpen, Play, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,7 +15,6 @@ export function ScanForm() {
 
   const { scanStatus } = useScanContext();
   const { start, cancel } = useScan();
-
   const isRunning = scanStatus === "running";
 
   const handleStart = () => {
@@ -35,74 +27,90 @@ export function ScanForm() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <FolderOpen className="h-4 w-4" />
-          Scan Directory
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="scan-path">Directory path</Label>
-          <Input
-            id="scan-path"
-            placeholder="/home/user/documents  or  C:\Users\demo"
-            value={path}
-            onChange={(e) => setPath(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isRunning}
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="partial-hash-toggle" className="text-sm">
-              Partial hash (Stage 2)
+    <div className="rounded-xl dark:card-glow dark:card-glow-active">
+      <Card className="border-border/60">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <FolderOpen className="h-4 w-4 text-primary" />
+            Scan Directory
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="scan-path" className="text-sm">
+              Directory path
             </Label>
-            <p className="text-xs text-muted-foreground">
-              Read first 64 KB before full SHA-256 — speeds up large collections
-            </p>
+            <Input
+              id="scan-path"
+              placeholder="/home/user/documents  or  C:\Users\name"
+              value={path}
+              onChange={(e) => setPath(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isRunning}
+              className="font-mono text-sm"
+            />
           </div>
-          <Switch
-            id="partial-hash-toggle"
-            checked={usePartialHash}
-            onCheckedChange={setUsePartialHash}
-            disabled={isRunning}
-          />
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="chunk-size" className="text-sm">
-            Chunk size: {(chunkSize / 1024).toFixed(0)} KB
-          </Label>
-          <input
-            id="chunk-size"
-            type="range"
-            min={4096}
-            max={524288}
-            step={4096}
-            value={chunkSize}
-            onChange={(e) => setChunkSize(Number(e.target.value))}
-            disabled={isRunning}
-            className="w-full accent-primary"
-          />
-        </div>
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="partial-hash-toggle" className="text-sm cursor-pointer">
+                Partial hash (Stage 2)
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Read first 64 KB before full SHA-256 — speeds up large collections
+              </p>
+            </div>
+            <Switch
+              id="partial-hash-toggle"
+              checked={usePartialHash}
+              onCheckedChange={setUsePartialHash}
+              disabled={isRunning}
+            />
+          </div>
 
-        <div className="flex gap-2">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="chunk-size" className="text-sm">
+                Chunk size
+              </Label>
+              <span className="text-xs font-mono text-primary">
+                {(chunkSize / 1024).toFixed(0)} KB
+              </span>
+            </div>
+            <input
+              id="chunk-size"
+              type="range"
+              min={4096}
+              max={524288}
+              step={4096}
+              value={chunkSize}
+              onChange={(e) => setChunkSize(Number(e.target.value))}
+              disabled={isRunning}
+              className="w-full accent-primary"
+            />
+            <div className="flex justify-between text-[10px] text-muted-foreground font-mono">
+              <span>4 KB</span>
+              <span>512 KB</span>
+            </div>
+          </div>
+
           {isRunning ? (
-            <Button variant="destructive" onClick={cancel} className="flex-1">
+            <Button variant="destructive" onClick={cancel} className="w-full">
               <Square className="h-4 w-4" />
-              Cancel
+              Cancel Scan
             </Button>
           ) : (
-            <Button onClick={handleStart} disabled={!path.trim()} className="flex-1">
+            <Button
+              onClick={handleStart}
+              disabled={!path.trim()}
+              className="w-full progress-shimmer text-white border-0"
+            >
               <Play className="h-4 w-4" />
               Start Scan
             </Button>
           )}
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
