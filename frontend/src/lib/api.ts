@@ -5,7 +5,7 @@
  * and surface errors via the ScanContext error field + Sonner toasts.
  */
 
-const BASE = import.meta.env.VITE_API_URL ?? "";
+const BASE = import.meta.env.VITE_API_URL ?? "/api";
 
 async function request<T>(
   method: string,

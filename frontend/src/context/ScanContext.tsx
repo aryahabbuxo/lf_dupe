@@ -14,6 +14,9 @@ export interface Progress {
   total_elapsed: number;
   files_scanned: number;
   total_files: number;
+  stage1_total: number;
+  stage2_total: number | null;
+  stage3_total: number | null;
   percent: number;
   status: ScanStatus;
   error: string | null;

@@ -58,6 +58,12 @@ def group_by_partial_hash(
     scan_state["stage"] = PARTIAL_HASH_STAGE
     scan_state["stage2_start"] = time.monotonic()
 
+    # Count candidates entering this stage so the SSE endpoint can show
+    # accurate per-stage progress (0→100%) rather than overflowing total_files.
+    stage2_total = sum(len(ps) for ps in size_groups.values())
+    scan_state["stage2_total"] = stage2_total
+    scan_state["stage2_scanned"] = 0
+
     hash_groups: dict[str, list[str]] = defaultdict(list)
     skipped: list[SkippedFile] = []
     processed = 0
@@ -81,7 +87,7 @@ def group_by_partial_hash(
 
             hash_groups[digest].append(path)
             processed += 1
-            scan_state["files_scanned"] = scan_state.get("total_files", 0) + processed
+            scan_state["stage2_scanned"] = processed
 
     survivors = {h: ps for h, ps in hash_groups.items() if len(ps) > 1}
     scan_state["stage2_end"] = time.monotonic()

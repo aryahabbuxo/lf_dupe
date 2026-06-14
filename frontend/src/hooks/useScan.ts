@@ -29,7 +29,8 @@ export function useScan() {
   const openSSE = useCallback(() => {
     closeSSE();
 
-    const es = new EventSource("/scan/progress");
+    const base = import.meta.env.VITE_API_URL ?? "/api";
+    const es = new EventSource(`${base}/scan/progress`);
     esRef.current = es;
 
     es.onmessage = async (event) => {

@@ -31,8 +31,17 @@ def _build_payload(state: dict) -> str:
     start: float | None = state.get("start_time")
     elapsed = round(time.monotonic() - start, 3) if start else 0.0
 
-    total = state.get("total_files") or 1  # avoid division by zero
-    scanned = state.get("files_scanned", 0)
+    # Use stage-specific counters so progress never overflows 100%.
+    stage = state.get("stage") or "idle"
+    if stage == "partial_hash":
+        total = max(state.get("stage2_total", 0), 1)
+        scanned = state.get("stage2_scanned", 0)
+    elif stage == "full_hash":
+        total = max(state.get("stage3_total", 0), 1)
+        scanned = state.get("stage3_scanned", 0)
+    else:
+        total = max(state.get("total_files", 0), 1)
+        scanned = state.get("files_scanned", 0)
     percent = min(round(scanned / total * 100, 1), 100.0)
 
     def _dur(key_start: str, key_end: str) -> float | None:
@@ -54,7 +63,10 @@ def _build_payload(state: dict) -> str:
         "stage_times": timing.model_dump(),
         "total_elapsed": elapsed,
         "files_scanned": scanned,
-        "total_files": state.get("total_files", 0),
+        "total_files": total,
+        "stage1_total": state.get("total_files", 0),
+        "stage2_total": state.get("stage2_total"),
+        "stage3_total": state.get("stage3_total"),
         "percent": percent,
         "status": state.get("status", "idle"),
         "error": state.get("error"),

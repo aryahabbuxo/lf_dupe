@@ -61,6 +61,10 @@ def confirm_duplicates(
     scan_state["stage"] = "full_hash"
     scan_state["stage3_start"] = time.monotonic()
 
+    stage3_total = sum(len(ps) for ps in partial_groups.values())
+    scan_state["stage3_total"] = stage3_total
+    scan_state["stage3_scanned"] = 0
+
     full_groups: dict[str, list[str]] = defaultdict(list)
     skipped: list[SkippedFile] = []
     processed = 0
@@ -84,7 +88,7 @@ def confirm_duplicates(
 
             full_groups[full_hash].append(path)
             processed += 1
-            scan_state["files_scanned"] = scan_state.get("total_files", 0) + processed
+            scan_state["stage3_scanned"] = processed
 
     confirmed: list[DuplicateGroup] = []
     for full_hash, paths in full_groups.items():

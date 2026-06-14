@@ -11,9 +11,12 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/scan": "http://localhost:8000",
-      "/results": "http://localhost:8000",
-      "/health": "http://localhost:8000",
+      // Prefix all backend calls with /api so they don't collide with
+      // React Router routes like /results and /algorithm.
+      "/api": {
+        target: "http://localhost:8000",
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
     },
   },
 });

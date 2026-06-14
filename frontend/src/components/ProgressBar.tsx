@@ -1,14 +1,6 @@
-/**
- * ProgressBar — animated stage-aware progress indicator.
- *
- * Shows the current pipeline stage as a human label,
- * elapsed time, and a smooth animated bar.
- */
-
-import { cn } from "@/lib/utils";
+import { cn, formatTime } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { useScanContext } from "@/context/ScanContext";
-import { formatTime } from "@/lib/utils";
 
 const STAGE_LABELS: Record<string, string> = {
   idle: "Idle",
@@ -29,6 +21,22 @@ export function ProgressBar() {
   const elapsed = progress?.total_elapsed ?? 0;
   const label = STAGE_LABELS[stage] ?? stage;
   const isError = scanStatus === "error";
+
+  // Build a human-readable "X of Y files" line appropriate for each stage.
+  const fileCountLine = (() => {
+    if (!progress) return null;
+    const { files_scanned, total_files, stage1_total, stage2_total, stage3_total } = progress;
+    if (stage === "size_grouping") {
+      return `${files_scanned.toLocaleString()} files discovered`;
+    }
+    if (stage === "partial_hash" && stage2_total != null) {
+      return `${files_scanned.toLocaleString()} of ${stage2_total.toLocaleString()} candidates (from ${stage1_total.toLocaleString()} total)`;
+    }
+    if (stage === "full_hash" && stage3_total != null) {
+      return `${files_scanned.toLocaleString()} of ${stage3_total.toLocaleString()} candidates`;
+    }
+    return `${files_scanned.toLocaleString()} / ${total_files.toLocaleString()} files`;
+  })();
 
   return (
     <div className="space-y-2">
@@ -51,10 +59,9 @@ export function ProgressBar() {
         className={cn(isError && "bg-destructive/20 [&>div]:bg-destructive")}
       />
 
-      {progress && (
+      {fileCountLine && (
         <p className="text-xs text-muted-foreground tabular-nums">
-          {progress.files_scanned.toLocaleString()} /{" "}
-          {progress.total_files.toLocaleString()} files
+          {fileCountLine}
         </p>
       )}
     </div>
